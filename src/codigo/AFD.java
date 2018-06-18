@@ -10,7 +10,7 @@ public class AFD {
 	private Estado estado_inicial;
 	private List<Estado> estados_finais = new ArrayList<Estado>();
 	
-	public AFD(	// construtor do AFD
+	public AFD(	// construtor do AFD que recebe a descrição formal
 			ArrayList<Estado> estados,
 			ArrayList<Transicao> transicoes,
 			ArrayList<String> alfabeto,
@@ -29,10 +29,10 @@ public class AFD {
 			for(int i = 0; i<9; i++) {
 				boolean estado_final = (i == 2 || i == 5 || i == 8);
 				estados.add(new Estado("s"+String.valueOf(i),estado_final));
-				print("Adicionado o estado "+estados.get(i).toString());
+				print("INFO: Adicionado o estado "+estados.get(i).toString());
 				if(estado_final) {
 					estados_finais.add(estados.get(i));
-					print(" - FINAL!\n");
+					print("(FINAL)\n");
 				}
 				else {
 					print("\n");
@@ -43,30 +43,52 @@ public class AFD {
 			alfabeto.add("1");
 			
 			estado_inicial = estados.get(0);
-			print("O estado "+estados.get(0).toString()+" é INICIAL!\n");
+			print("INFO: O estado "+estados.get(0).toString()+" é INICIAL!\n");
 			
 			int i = 0;
 			int est_destinos[] = {1,4,2,5,3,7,4,7,5,8,6,1,7,1,8,2,0,4};
 			for(int j = 0; j<9; j++) {
 				for(int k = 0; k<2; k++) {
-					transicoes.add(new Transicao(estados.get(j),estados.get(est_destinos[i]),alfabeto.get(k)));
-					estados.get(j).Adicionar_transicao(transicoes.get(transicoes.size()-1));
-					print("Adicionada a transição "+transicoes.get(transicoes.size()-1).toString()+"\n");
+					adicionar_transicao(estados.get(j), estados.get(est_destinos[i]), alfabeto.get(k));
 					i++;
 				}
 			}
 		}
 	}
 	
-	public Estado Estado_inicial() {
+	public void adicionar_transicao(Estado origem, Estado destino, String entrada) {
+		transicoes.add(new Transicao(origem,destino,entrada));
+		origem.adicionar_transicao(transicoes.get(transicoes.size()-1));
+		print("INFO: Adicionada a transição "+transicoes.get(transicoes.size()-1).toString()+"\n");
+	}
+	
+	public AFD minimizar() {
+		Minimizacao m1 = new Minimizacao(this);
+		return m1.getAFD_destino();
+	}
+	
+	public Estado get_estado_inicial() {
 		return this.estado_inicial;
+	}
+	
+	public List<Estado> get_estados() {
+		return this.estados;
+	}
+	public List<Transicao> get_transicoes() {
+		return this.transicoes;
+	}
+	public List<String> get_alfabeto(){
+		return this.alfabeto;
+	}
+	public List<Estado> get_estados_finais(){
+		return this.estados_finais;
 	}
 	
 	public void print(String texto) {
 		System.out.print(texto);
 	}
 	
-	public void Apresentar_desc_formal() {
+	public void mostrar_descricao_formal() {
 		print("\n== DESCRIÇÃO FORMAL DO AUTÔMATO ==\n\n");
 		print("E = {");
 		for(int i = 0; i<estados.size(); i++) {
@@ -98,6 +120,7 @@ public class AFD {
 				print(String.format(" %3s ", estados.get(i).get_destino(alfabeto.get(j)))+((j != alfabeto.size()-1) ? "|" : "\n"));
 			}
 		}
+		print("\n");
 	}
 	
 }

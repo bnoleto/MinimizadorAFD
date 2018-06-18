@@ -19,6 +19,10 @@ public class Transicao {
 	public Estado getDestino() {
 		return this.estado_destino;
 	}
+	
+	public Estado getOrigem() {
+		return this.estado_origem;
+	}
 	@Override
 	public String toString() {
 		return "("+ simbolo +")"+ this.estado_origem.toString() + " -> " + this.estado_destino.toString();

@@ -14,7 +14,7 @@ public class Estado {
 		this.estado_final = eh_final;
 	}
 	
-	public void Adicionar_transicao(Transicao t1) {
+	public void adicionar_transicao(Transicao t1) {
 		transicoes.add(t1);
 	}
 	
@@ -23,7 +23,7 @@ public class Estado {
 		return this.nome;
 	}
 	
-	public boolean Eh_final() {
+	public boolean eh_final() {
 		return estado_final;
 	}
 	
