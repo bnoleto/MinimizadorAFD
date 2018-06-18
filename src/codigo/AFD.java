@@ -49,7 +49,9 @@ public class AFD {
 			int est_destinos[] = {1,4,2,5,3,7,4,7,5,8,6,1,7,1,8,2,0,4};
 			for(int j = 0; j<9; j++) {
 				for(int k = 0; k<2; k++) {
-					adicionar_transicao(estados.get(j), estados.get(est_destinos[i]), alfabeto.get(k));
+					if((j != 8 || k != 1) && (j != 4 || k != 0)) {
+						adicionar_transicao(estados.get(j), estados.get(est_destinos[i]), alfabeto.get(k));	
+					}
 					i++;
 				}
 			}

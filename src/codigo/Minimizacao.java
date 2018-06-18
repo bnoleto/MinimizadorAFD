@@ -13,7 +13,7 @@ public class Minimizacao {
 			this.afd_destino = afd_origem;
 			return;
 		}
-		
+		this.afd_destino = afd_origem; // TODO: apagar esta linha ao fazer o algoritmo de minimização
 		
 	}
 	
@@ -70,10 +70,29 @@ public class Minimizacao {
 			}
 		}
 		if(qtd_transicoes != afd_origem.get_estados().size()*afd_origem.get_alfabeto().size()) {
-			// TODO: IMPLEMENTAR ESTADO DE ERRO SE NECESSÁRIO, por enquanto o programa parará aqui
 			
-			System.out.println("ERRO: O Autômato não possui a função de transição total!");
-			return false;
+			// algoritmo que criará o estado de erro (sE) caso a função de transição não seja TOTAL
+			
+			System.out.println("AVISO: O Autômato não possui a função de transição total! "
+					+ "Será criado um estado de erro (sE) e transições serão direcionadas à ele caso não existam transições para entradas específicas.");
+			afd_origem.get_estados().add(new Estado("sE",false));
+			System.out.println("INFO: Adicionado o estado sE");
+			
+			Estado sE = afd_origem.get_estados().get(afd_origem.get_estados().size()-1);
+			
+			for(int i = 0; i< afd_origem.get_estados().size(); i++) {
+				Estado estado_atual = afd_origem.get_estados().get(i);
+				for(int j = 0; j<afd_origem.get_alfabeto().size(); j++) {
+					try {
+						if(estado_atual.getTransicoes().get(j).getSimbolo().toString().compareTo(afd_origem.get_alfabeto().get(j).toString()) != 0) {
+							// TODO: código para adicionar a transição
+						}
+						
+					} catch (Exception e) {
+						afd_origem.adicionar_transicao(estado_atual, sE, afd_origem.get_alfabeto().get(j));
+					}
+				}
+			}
 		}
 		System.out.println("INFO: O Autômato possui função de transição total!");
 
