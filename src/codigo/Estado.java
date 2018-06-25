@@ -26,7 +26,7 @@ public class Estado {
 	public boolean eh_final() {
 		return estado_final;
 	}
-	
+	/*
 	public String get_destino(String simbolo) {
 		for(int i = 0; i<transicoes.size(); i++) {
 			if(transicoes.get(i).getSimbolo().compareTo(simbolo) == 0) {
@@ -34,6 +34,15 @@ public class Estado {
 			}
 		}
 		return "X";
+	}*/
+	
+	public Estado get_destino(String simbolo) {
+		for(int i = 0; i<transicoes.size(); i++) {
+			if(transicoes.get(i).getSimbolo().compareTo(simbolo) == 0) {
+				return transicoes.get(i).getDestino();
+			}
+		}
+		return null;
 	}
 	
 	public List<Transicao> getTransicoes() {

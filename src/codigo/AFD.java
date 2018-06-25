@@ -118,7 +118,7 @@ public class AFD {
 	}
 	
 	public void mostrar_descricao_formal() {
-		log.escrever_linha("\n== DESCRIÇÃO FORMAL DO AUTÔMATO ==\n");
+		log.escrever_linha("info", "DESCRIÇÃO FORMAL DO AUTÔMATO: ");
 		log.escrever("E = {");
 		for(int i = 0; i<estados.size(); i++) {
 			log.escrever(estados.get(i).toString() + ((i != estados.size()-1) ? ", " : "}\n"));

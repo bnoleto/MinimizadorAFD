@@ -3,21 +3,108 @@ package codigo;
 import java.util.ArrayList;
 import java.util.List;
 
+class Par{
+	private List<Estado> estados = new ArrayList<Estado>();
+	
+	public Par(Estado e1,Estado e2) {
+		estados.add(e1);
+		estados.add(e2);
+	}
+	
+	public List<Estado> get_par() {
+		return this.estados;
+	}
+}
+
 public class Minimizacao {
 	
 	private AFD afd_origem, afd_destino;
+	private boolean tabela_triangular[][];
 	
 	Log log;
 	
 	public Minimizacao(AFD afd) {
+		
 		this.afd_origem = afd;
-		this.log = afd.get_objeto_log();
-		if(!verificar_pre_requisitos()) {
-			this.afd_destino = afd_origem;
-			return;
-		}
 		this.afd_destino = afd_origem; // TODO: apagar esta linha ao fazer o algoritmo de minimização
 		
+		this.log = afd.get_objeto_log();
+		if(!verificar_pre_requisitos()) {
+			return;
+		}
+		criar_tabela_triangular();
+		
+	}
+	
+	private boolean analise_equivalencia(Estado e1, Estado e2) {
+		return !(e1.eh_final()^e2.eh_final());
+	}
+	
+	private boolean analise_equivalencia2(Estado e1, Estado e2) {
+		
+		// algoritmo atualmente só serve para AFD com 2 símbolos
+		// TODO: alterar algoritmo para permitir a análise com 3 ou mais símbolos
+		
+		List<Par> pares = new ArrayList<Par>();
+		List<Estado> destinos = new ArrayList<Estado>();
+		for(int i = 0; i < afd_origem.get_alfabeto().size(); i++) {
+			destinos.add(e1.get_destino(afd_origem.get_alfabeto().get(i)));
+		}
+		pares.add(new Par(destinos.get(0),destinos.get(1)));
+		pares.add(new Par(destinos.get(2),destinos.get(3)));
+		
+		return analise_pares(pares.get(0), pares.get(1));
+	}
+	
+	private boolean analise_pares(Par p1, Par p2) {
+		boolean par_1, par_2;
+		
+		par_1 = tabela_triangular[afd_origem.get_estados().indexOf(p1.get_par().get(0))][afd_origem.get_estados().indexOf(p1.get_par().get(1))];
+		par_2 = tabela_triangular[afd_origem.get_estados().indexOf(p2.get_par().get(0))][afd_origem.get_estados().indexOf(p2.get_par().get(1))];
+		return !(par_1^par_2);
+	}
+	
+	private void criar_tabela_triangular() {
+		
+		/* será criada uma nova matriz Tabela e a tabela_triangular passará a apontar para ela, para garantir que a matriz tenha o mesmo tamanho da
+		   quantidade dos estados do AFD*/
+		int numEstados = afd_origem.get_estados().size();
+		boolean tabela[][] = new boolean[numEstados][numEstados];
+		tabela_triangular = tabela;
+		
+		// 1ª passagem: irá conferir se os estados são trivialmente equivalentes
+		log.escrever_linha("info", "1ª passagem - estados trivialmente equivalentes:");
+		for(int i = 1; i < numEstados; i++ ) {
+			for(int j = 0; j < i; j++) {
+				tabela[i][j] = analise_equivalencia(afd_origem.get_estados().get(i), afd_origem.get_estados().get(j));
+			}
+		}
+		
+		// 2ª passagem: análise dos pares não marcados
+		for(int i = 1; i < numEstados; i++ ) {
+			for(int j = 0; j < i; j++) {
+				if(!tabela[i][j]) {
+					tabela[i][j] = analise_equivalencia2(afd_origem.get_estados().get(i), afd_origem.get_estados().get(j));
+				}
+			}
+		}
+		
+		mostrar_tabela();
+	}
+	
+	public void mostrar_tabela() {
+		for(int i = 1; i < afd_origem.get_estados().size(); i++ ) {
+			log.escrever(afd_origem.get_estados().get(i).toString() + " |");
+			for(int j = 0; j < i; j++) {
+				log.escrever( (tabela_triangular[i][j]) ? "   |" : " X |");
+			}
+			log.escrever("\n");
+		}
+		log.escrever("   |");
+		for(int i = 0; i < afd_origem.get_estados().size()-1; i++) {		
+			log.escrever(afd_origem.get_estados().get(i).toString() + " |");
+		}
+		log.escrever("\n\n");
 	}
 	
 	private void buscar_estado_posterior(Estado origem, List<Estado> lista) {
@@ -52,13 +139,13 @@ public class Minimizacao {
 	// verificará se possui estados inacessíveis
 		List<Estado> lista = new ArrayList<Estado>();
 		
-		// A função abaixo fará uma busca recursiva a partir do estado inicial, passando para o próximo estado por meio do ESTADO DESTINO ->
-				// -> definido em cada transição a partir do ESTADO ORIGEM, adicionando à lista cada Estado diferente que for alcançado;
-		// No encerramento da função, teremos uma LISTA LOCAL de estados acessados, e a quantidade de itens desta lista será comparada ->
-				// -> com a quantidade de Estados criados no AFD;
-		// Caso tenham a mesma quantidade, todos os estados foram acessados. Caso a LISTA LOCAL seja menor que a LISTA DE ESTADOS CRIADOS ->
-				// -> do AFD, então existem estados inacessíveis;
-		// A LISTA LOCAL nunca será maior que a LISTA DE ESTADOS CRIADOS do AFD.
+		/* A função abaixo fará uma busca recursiva a partir do estado inicial, passando para o próximo estado por meio do ESTADO DESTINO
+		   definido em cada transição a partir do ESTADO ORIGEM, adicionando à lista cada Estado diferente que for alcançado;
+		 * No encerramento da função, teremos uma LISTA LOCAL de estados acessados, e a quantidade de itens desta lista será comparada ->
+		   com a quantidade de Estados criados no AFD; 
+		 * Caso tenham a mesma quantidade, todos os estados foram acessados. Caso a LISTA LOCAL seja menor que a LISTA DE ESTADOS CRIADOS ->
+		   do AFD, então existem estados inacessíveis; 
+		 * A LISTA LOCAL nunca será maior que a LISTA DE ESTADOS CRIADOS do AFD.*/
 		
 		buscar_estado_posterior(afd_origem.get_estado_inicial(), lista);
 		

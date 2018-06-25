@@ -13,7 +13,7 @@ public class Console {
 		
 		afd_minimizado = afd_1.minimizar();
 		
-		//afd_minimizado.mostrar_descricao_formal();
+		afd_minimizado.mostrar_descricao_formal();
 
 	}
 
