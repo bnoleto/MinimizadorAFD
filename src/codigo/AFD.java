@@ -3,7 +3,7 @@ package codigo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AFD {
+public class AFD{
 	private List<Estado> estados = new ArrayList<Estado>();
 	private List<Transicao> transicoes = new ArrayList<Transicao>();
 	private List<String> alfabeto = new ArrayList<String>();
@@ -55,7 +55,10 @@ public class AFD {
 	}
 	
 	public void set_estado_inicial(Estado e) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(estado_inicial);
 		this.estado_inicial = e;
+		if(sb.toString().compareTo(e.toString()) != 0)
 		log.escrever_linha("INFO", "O estado '"+estado_inicial.toString()+"' foi configurado como INICIAL!");
 	}
 	
@@ -91,9 +94,35 @@ public class AFD {
 		}
 	}
 	
+	public void remover_estado(Estado e1) {
+		if(estados.contains(e1)) {
+			log.escrever_linha("INFO: Estado '"+e1.toString() + "' removido!");
+			estados.remove(e1);
+			estados_finais.remove(e1);
+			set_estado_inicial(estados.get(0));	
+		}
+		
+	}
+
 	public AFD minimizar() {
 		Minimizacao m1 = new Minimizacao(this);
 		return m1.getAFD_destino();
+	}
+	
+	public boolean testar_palavra(String palavra) {
+		Estado estado_atual = estado_inicial;
+		int posicao_atual = 0;
+		while(posicao_atual < palavra.length()) {
+			char simbolo_atual = palavra.charAt(posicao_atual);
+			estado_atual = estado_atual.get_destino(String.valueOf(simbolo_atual));
+			posicao_atual++;
+		}
+		if(estado_atual.eh_final()) {
+			log.escrever_linha("info", "Palavra '" + palavra +"' aceita!");
+			return true;
+		}
+		log.escrever_linha("info", "Palavra '" + palavra +"' não faz parte da linguagem.");
+		return false;
 	}
 	
 	public Estado get_estado_inicial() {

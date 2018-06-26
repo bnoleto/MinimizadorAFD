@@ -45,6 +45,10 @@ public class Estado {
 		return null;
 	}
 	
+	public void renomear(String nome) {
+		this.nome = nome;
+	}
+
 	public List<Transicao> getTransicoes() {
 		return this.transicoes;
 	}

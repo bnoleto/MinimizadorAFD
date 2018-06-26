@@ -23,6 +23,16 @@ public class Transicao {
 	public Estado getOrigem() {
 		return this.estado_origem;
 	}
+	
+	public void substituirEstado(Estado entrada, Estado saida) {
+		if(entrada == estado_origem) {
+			estado_origem = saida;
+		}
+		if(entrada == estado_destino) {
+			estado_destino = saida;
+		}
+
+	}
 	@Override
 	public String toString() {
 		return this.estado_origem.toString() + "("+ simbolo +")"+ " -> " + this.estado_destino.toString();
