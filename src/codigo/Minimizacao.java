@@ -135,14 +135,6 @@ public class Minimizacao {
 		log.escrever(titulo.toString() + sb.toString());
 		nao_modif++;
 	}
-	/*
-	private boolean analise_pares(Par p1, Par p2) {
-		boolean par_1, par_2;
-		
-		par_1 = tabela_triangular[afd_origem.get_estados().indexOf(p1.get_par().get(0))][afd_origem.get_estados().indexOf(p1.get_par().get(1))];
-		par_2 = tabela_triangular[afd_origem.get_estados().indexOf(p2.get_par().get(0))][afd_origem.get_estados().indexOf(p2.get_par().get(1))];
-		return !(par_1^par_2);
-	}*/
 	
 	private void criar_tabela_triangular() {
 		
@@ -162,7 +154,7 @@ public class Minimizacao {
 					tabela[i][j] = analise_trivial(par_atual) ? 0 : -1;
 					if (analise_trivial(par_atual)) {
 						a_verificar.add(par_atual);
-						log.escrever_linha(par_atual.get_par().toString());
+						//log.escrever_linha(par_atual.get_par().toString());
 					}	
 				}
 				else {

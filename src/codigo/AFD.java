@@ -173,8 +173,8 @@ public class AFD{
 		return this.log;
 	}
 	
-	public void mostrar_descricao_formal() {
-		log.escrever_linha("info", "DESCRIÇÃO FORMAL DO AUTÔMATO: ");
+	public void mostrar_descricao_formal(String nome) {
+		log.escrever_linha("info", "DESCRIÇÃO FORMAL DO AUTÔMATO "+nome+": ");
 		log.escrever("E = {");
 		for(int i = 0; i<estados.size(); i++) {
 			log.escrever(estados.get(i).toString() + ((i != estados.size()-1) ? ", " : "}\n"));
@@ -201,7 +201,7 @@ public class AFD{
 		for(int i = 0; i< estados.size(); i++) {
 			log.escrever(String.format(" %6s ", estados.get(i).toString()) + "||" );
 			for(int j = 0; j<alfabeto.size(); j++) {
-				log.escrever(String.format(" %3s ", estados.get(i).get_destino(alfabeto.get(j)))+((j != alfabeto.size()-1) ? "|" : "\n"));
+				log.escrever(String.format(" %3s ", (estados.get(i).get_destino(alfabeto.get(j))) != null ? estados.get(i).get_destino(alfabeto.get(j)) : "X" )+((j != alfabeto.size()-1) ? "|" : "\n"));
 			}
 		}
 		log.escrever("\n");

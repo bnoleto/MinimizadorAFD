@@ -6,14 +6,15 @@ public class Console {
 
 	public static void main(String[] args) {
 		
-		AFD afd_1 = new AFD(2);
-		AFD afd_minimizado;
+		int cod_afd = 1;
 		
-		//afd_1.mostrar_descricao_formal();
+		AFD afd_origem = new AFD(cod_afd);
+		AFD afd_minimizado = new AFD(cod_afd);
 		
-		afd_minimizado = afd_1.minimizar();
+		afd_minimizado.minimizar();
 		
-		afd_minimizado.mostrar_descricao_formal();
+		afd_origem.mostrar_descricao_formal("ORIGINAL");
+		afd_minimizado.mostrar_descricao_formal("MINIMIZADO");
 		afd_minimizado.testar_palavra("baabbaba");
 		afd_minimizado.testar_palavra("00101001");
 		
