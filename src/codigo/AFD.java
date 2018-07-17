@@ -3,6 +3,8 @@ package codigo;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JTextArea;
+
 public class AFD{
 	private List<Estado> estados = new ArrayList<Estado>();
 	private List<Transicao> transicoes = new ArrayList<Transicao>();
@@ -12,21 +14,20 @@ public class AFD{
 	
 	private Log log = new Log();
 	
-	public AFD(	// construtor do AFD que recebe a descrição formal
-			ArrayList<Estado> estados,
-			ArrayList<Transicao> transicoes,
-			ArrayList<String> alfabeto,
-			Estado estado_inicial,
-			ArrayList<Estado> estados_finais){
-		
-		this.estados = estados;
-		this.transicoes = transicoes;
-		this.alfabeto = alfabeto;
-		this.estado_inicial = estado_inicial;
-		this.estados_finais = estados_finais;
+	public AFD(int num,JTextArea component) {
+		log = new Log(component);
+		gerarAFD(num);
 	}
 	
-	public AFD(int num){	// vai gerar um AFD pré-determinado
+	public AFD(JTextArea component) {
+		log = new Log(component);
+	}
+	
+	public AFD() {
+
+	}
+	
+	private void gerarAFD(int num) {
 		if(num == 1) { // AFD #1
 			for(int i = 0; i<9; i++) {
 				boolean estado_final = (i == 2 || i == 5 || i == 8);
@@ -71,6 +72,24 @@ public class AFD{
 		}
 	}
 	
+	public AFD(	// construtor do AFD que recebe a descrição formal
+			ArrayList<Estado> estados,
+			ArrayList<Transicao> transicoes,
+			ArrayList<String> alfabeto,
+			Estado estado_inicial,
+			ArrayList<Estado> estados_finais){
+		
+		this.estados = estados;
+		this.transicoes = transicoes;
+		this.alfabeto = alfabeto;
+		this.estado_inicial = estado_inicial;
+		this.estados_finais = estados_finais;
+	}
+	
+	public AFD(int num){	// vai gerar um AFD pré-determinado
+		gerarAFD(num);
+	}
+	
 	public void adicionar_alfabeto(String simbolo) {
 		alfabeto.add(simbolo);
 		log.escrever_linha("INFO", "Símbolo '" + simbolo + "' adicionado!");
@@ -88,6 +107,14 @@ public class AFD{
 		transicoes.add(new Transicao(origem,destino,entrada));
 		origem.adicionar_transicao(transicoes.get(transicoes.size()-1));
 		log.escrever_linha("INFO", "Transição '"+transicoes.get(transicoes.size()-1).toString() + "' adicionada!");
+	}
+	
+	public void remover_ultima_transicao() {
+		Transicao t = transicoes.get(transicoes.size()-1);
+		Estado origem = t.getOrigem();
+		log.escrever_linha("INFO", "Transição '"+t.toString() + "' removida!");
+		transicoes.remove(t);
+		origem.remover_transicao(t);
 	}
 	
 	public void adicionar_estado(boolean eh_final) {
@@ -116,6 +143,10 @@ public class AFD{
 		}
 	}
 	
+	public void set_log_component(JTextArea component) {
+		this.log = new Log(component);
+	}
+	
 	public void remover_estado(Estado e1) {
 		if(estados.contains(e1)) {
 			log.escrever_linha("INFO: Estado '"+e1.toString() + "' removido!");
@@ -123,6 +154,12 @@ public class AFD{
 			estados_finais.remove(e1);
 			set_estado_inicial(estados.get(0));	
 		}
+		
+	}
+	
+	public void remover_ultimo_estado() {
+		log.escrever_linha("INFO: Estado '"+estados.get(estados.size()-1).toString() + "' removido!");
+		estados.remove(estados.size()-1);
 		
 	}
 

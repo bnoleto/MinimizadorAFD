@@ -19,6 +19,10 @@ public class Estado {
 		transicoes.add(t1);
 	}
 	
+	public void remover_transicao(Transicao t1) {
+		transicoes.remove(t1);
+	}
+	
 	@Override
 	public String toString() {
 		return this.nome;

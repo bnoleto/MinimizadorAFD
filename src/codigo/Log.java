@@ -1,10 +1,10 @@
 package codigo;
 
-import java.awt.TextArea;
+import javax.swing.JTextArea;
 
 public class Log {
 		
-	private TextArea caixa_texto;
+	private JTextArea caixa_texto;
 	
 	boolean debug = false;
 	boolean erro = true;
@@ -15,7 +15,7 @@ public class Log {
 		this.caixa_texto = null;
 	}
 	
-	public Log(TextArea caixa_texto) {
+	public Log(JTextArea caixa_texto) {
 		this.caixa_texto = caixa_texto;
 	}
 	
