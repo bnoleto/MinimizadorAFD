@@ -21,6 +21,10 @@ class Par{
 		return this.eh_equivalente;
 	}
 	
+	public boolean verif_equivalente() {
+		return this.eh_equivalente;
+	}
+	
 	public List<Estado> get_par() {
 		return estados;
 	}
@@ -29,9 +33,9 @@ class Par{
 public class Minimizacao {
 	
 	private AFD afd_origem, afd_destino;
-	private Par tabela_triangular[][];
+	private int tabela_triangular[][];
 	List<Par> a_verificar = new ArrayList<Par>();
-	private List<Par> pares_equivalentes = new ArrayList<Par>();
+	int nao_modif = 0;
 	
 	Log log;
 	
@@ -51,68 +55,85 @@ public class Minimizacao {
 	
 	private boolean analise_trivial(Par par) {
 		Estado e1 = par.get_par().get(0), e2 = par.get_par().get(1);
-		if(e1.eh_final() == e2.eh_final()) {
-			a_verificar.add(par);
-		}
+
 		return !(e1.eh_final()^e2.eh_final());
 	}
-	
-	private boolean analise_par(Par par) {
-		Estado e1, e2;
-		e1 = par.get_par().get(0);
-		e2 = par.get_par().get(1);
-		//log.escrever_linha(String.valueOf(!(e1.eh_final()^e2.eh_final())));
-		return !(e1.eh_final()^e2.eh_final());
+
+	private void enviar_para_ultimo(List<Par> lista) {
+		if(lista.size()>1) {
+			Par aux = lista.get(0);
+			for(int i = 1; i< lista.size(); i++) {
+				lista.set(i-1, lista.get(i));
+			}
+			lista.set(lista.size()-1, aux);	
+		}
 	}
 	
-	private void analise_equivalencia(Par par) {
-		a_verificar.remove(par);
+	private void analise_equivalencia(Par par) {		
 		
-		// simbolo 0
-		Estado e0a = par.get_par().get(0).get_destino("0");
-		Estado e1a = par.get_par().get(1).get_destino("0");
 		
-		if(afd_origem.get_estados().indexOf(e0a) > afd_origem.get_estados().indexOf(e1a)) {
-			Estado aux = e0a;
-			e0a = e1a;
-			e1a = aux;
+		if(tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] != 0) {
+			a_verificar.remove(par);
+			return;
 		}
 		
-		log.escrever_linha("debug",afd_origem.get_estados().indexOf(e0a) + " / " + afd_origem.get_estados().indexOf(e1a));
-		Par par1 = tabela_triangular[afd_origem.get_estados().indexOf(e0a)][afd_origem.get_estados().indexOf(e1a)];
+		boolean achou_resultado = false;
+		
+		StringBuilder sb = new StringBuilder();
+		StringBuilder titulo = new StringBuilder();
+		
+		int cont_equiv = 0;
+		
+		for(int i = 0; i<afd_origem.get_alfabeto().size(); i++) {
 
-		// simbolo 1
-		Estado e0b = par.get_par().get(0).get_destino("1");
-		Estado e1b = par.get_par().get(1).get_destino("1");
-		
-		if(afd_origem.get_estados().indexOf(e0b) > afd_origem.get_estados().indexOf(e1b)) {
-			Estado aux = e0b;
-			e0b = e1b;
-			e1b = aux;
-		}
-		log.escrever_linha("debug",afd_origem.get_estados().indexOf(e0b) + " / " + afd_origem.get_estados().indexOf(e1b));
-		Par par2 = tabela_triangular[afd_origem.get_estados().indexOf(e0b)][afd_origem.get_estados().indexOf(e1b)];
-		
-		if(a_verificar.contains(par1)){
-			analise_equivalencia(par1);
-		}
-		if(a_verificar.contains(par2)){
-			analise_equivalencia(par2);
-		}
-		
-		boolean equivalentes = analise_par(par1) && analise_par(par2); 
-		
-		par.set_equivalente(equivalentes);
-		
-		if(equivalentes) {
-			pares_equivalentes.add(par);
-		}
-		
-		log.escrever_linha("== PAR {" + par.get_par().get(0).toString() + ","+ par.get_par().get(1).toString()+ "}");
-		log.escrever("1º Símbolo: {" + e0a.toString() + "," + e1a.toString());log.escrever_linha( "} "+ String.valueOf(analise_par(par1)));
-		log.escrever("2º Símbolo: {" + e0b.toString() + "," + e1b.toString());log.escrever_linha( "} "+ String.valueOf(analise_par(par2)));
-		log.escrever_linha("Resultado: " + (analise_par(par1) && analise_par(par2) ? "Equivalentes" : "Não-Equivalentes")+ "\n");
+			Estado e0 = par.get_par().get(0).get_destino(afd_origem.get_alfabeto().get(i));
+			Estado e1 = par.get_par().get(1).get_destino(afd_origem.get_alfabeto().get(i));
+					
+			
+			
+			int j0 = afd_origem.get_estados().indexOf(e0);
+			int j1 = afd_origem.get_estados().indexOf(e1);
+			int aux;
+			
+			sb.append("\n" + par.get_par().get(0).toString() + " + " + afd_origem.get_alfabeto().get(i) + " = " + e0 + " // "
+					+ par.get_par().get(1).toString() + " + " + afd_origem.get_alfabeto().get(i) + " = " + e1 + " --> ("+ ( j0>j1 ? (e1 + ", "+ e0+")") : (e0 + ", "+ e1+")")));
+			
+			if (j0>j1) {
+				aux = j0;
+				j0 = j1;
+				j1 = aux;
 
+			}
+			
+			if (tabela_triangular[j0][j1] == -1) {
+				achou_resultado = true;
+				sb.append(" NÃO EQV");
+				tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] = -1;
+				a_verificar.remove(par);
+				nao_modif = 0;
+			}
+			if(tabela_triangular[j0][j1] == 1) {
+				cont_equiv++;
+				sb.append(" EQV");
+			}
+		}
+		if(cont_equiv == afd_origem.get_alfabeto().size()) {
+			achou_resultado = true;
+			a_verificar.remove(par);
+			tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] = 1;
+			afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(0))).add_equivalente(afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(1))));
+			afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(1))).add_equivalente(afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(0))));			
+			nao_modif = 0;
+		}
+		if(!achou_resultado) {
+			enviar_para_ultimo(a_verificar);
+		}
+		
+		titulo.append("\n== PAR {" + par.get_par().get(0).toString() + ","+ par.get_par().get(1).toString()+ "} --> " + (
+			tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] == 0 ? "?" :(
+				tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] == 1) ? "EQV" : "NÃO EQV"));
+		log.escrever(titulo.toString() + sb.toString());
+		nao_modif++;
 	}
 	/*
 	private boolean analise_pares(Par p1, Par p2) {
@@ -128,71 +149,96 @@ public class Minimizacao {
 		/* será criada uma nova matriz Tabela e a tabela_triangular passará a apontar para ela, para garantir que a matriz tenha o mesmo tamanho da
 		   quantidade dos estados do AFD*/
 		int numEstados = afd_origem.get_estados().size();
-		Par tabela[][] = new Par[numEstados][numEstados];
+		int tabela[][] = new int[numEstados+1][numEstados+1];
 		tabela_triangular = tabela;
 		
 		// 1ª passagem: irá conferir se os estados são trivialmente equivalentes
 		log.escrever_linha("info", "1ª passagem - estados trivialmente equivalentes:");
-		for(int i = 1; i < numEstados; i++ ) {
-			for(int j = 0; j < i; j++) {
-				tabela[j][i] = new Par(afd_origem.get_estados().get(j),afd_origem.get_estados().get(i));
-				tabela[j][i].set_equivalente(analise_trivial(tabela[j][i]));
+		for(int i = 0; i < numEstados; i++ ) {
+			for(int j = i; j < numEstados; j++) {
+				Par par_atual = new Par(afd_origem.get_estados().get(i),afd_origem.get_estados().get(j));
+				
+				if (i != j) {
+					tabela[i][j] = analise_trivial(par_atual) ? 0 : -1;
+					if (analise_trivial(par_atual)) {
+						a_verificar.add(par_atual);
+						log.escrever_linha(par_atual.get_par().toString());
+					}	
+				}
+				else {
+					tabela[i][j] = 1;
+				}
+				
 			}
 		}
 		
-		mostrar_tabela();
+		mostrar_tabela2();
 		
 		// 2ª passagem: análise dos pares não marcados
 		log.escrever_linha("info", "2ª passagem - análise dos pares não marcados:");
-		while (!a_verificar.isEmpty()) {
-			analise_equivalencia(a_verificar.get(0));
+		while (!a_verificar.isEmpty() && nao_modif < a_verificar.size()*2) {
+			/*for(int i =0; i<a_verificar.size(); i++) {
+				log.escrever(a_verificar.get(i).get_par().toString());
+			}*/
+			Par par_atual = a_verificar.get(0);
+			analise_equivalencia(par_atual);
+			//mostrar_tabela2();
+			//log.escrever_linha(String.valueOf(a_verificar.size()));
+			
+		}
+		if(nao_modif == a_verificar.size()*2) {
+			for(int i = 0; i < numEstados; i++ ) {
+				for(int j = i; j < numEstados; j++) {
+					if(tabela[i][j] == 0) {
+						tabela[i][j] = 1;
+						afd_origem.get_estados().get(i).add_equivalente(afd_origem.get_estados().get(j));
+						afd_origem.get_estados().get(j).add_equivalente(afd_origem.get_estados().get(i));
+					}
+					
+				}
+			}
 		}
 		
 		mostrar_tabela2();
 		
 		// 3ª passagem: junção dos estados equivalentes
-		for(Par par_atual : pares_equivalentes) {
-			juntar_estados(par_atual);
+		List<Estado> estados = new ArrayList<Estado>();
+		for(int i = 0; i< afd_origem.get_estados().size(); i++) {
+			estados.add(afd_origem.get_estados().get(i));
 		}
-		
-		for(int i = 0; i< afd_destino.get_estados().size(); i++) {
-			log.escrever_linha("info", "Renomeando o estado '" + afd_destino.get_estados().get(i).toString() + "' para 'm" + i + "'...");
-			afd_destino.get_estados().get(i).renomear("m" + i);
+		while(!estados.isEmpty()) {
+			
+			Estado estado_atual = estados.get(0);
+			estados.remove(0);
+			
+			for(int i = 0; i<estados.size(); i++) {
+				if(estado_atual.get_equivalentes().contains(estados.get(i))) {
+					juntar_estados(estados.get(i), estado_atual);
+				}
+			}
+
 		}
-		
 		
 	}
 	
-	private void juntar_estados(Par par_atual) {
-		Estado e1 = par_atual.get_par().get(0), e2 = par_atual.get_par().get(1);
+	private void juntar_estados(Estado e1, Estado e2) {
+		//Estado e1 = par_atual.get_par().get(0), e2 = par_atual.get_par().get(1);
 		
 		for(Transicao transicao_atual : afd_destino.get_transicoes()) {
 			transicao_atual.substituirEstado(e1, e2);
 		}
-		log.escrever_linha("info", "Todas as transições de/para '" + e1 + "' foram mescladas com '" + e2 + "'!");
+		
+		e2.renomear(e2.toString()+e1.toString());
+		log.escrever_linha("info", "Todas as transições de/para '" + e1 + "' serão apontadas para '" + e2 + "'!");
 		afd_destino.remover_estado(e1);
 	}
 
-	private void mostrar_tabela() {
-		for(int i = 1; i < afd_origem.get_estados().size(); i++ ) {
-			log.escrever(afd_origem.get_estados().get(i).toString() + " |");
-			for(int j = 0; j < i; j++) {
-				log.escrever((tabela_triangular[j][i].get_equivalente()) ? "   |" : " X |");
-			}
-			log.escrever("\n");
-		}
-		log.escrever("   |");
-		for(int i = 0; i < afd_origem.get_estados().size()-1; i++) {		
-			log.escrever(afd_origem.get_estados().get(i).toString() + " |");
-		}
-		log.escrever("\n\n");
-	}
-	
 	private void mostrar_tabela2() {
+		log.escrever("\n\n");
 		for(int i = 1; i < afd_origem.get_estados().size(); i++ ) {
 			log.escrever(afd_origem.get_estados().get(i).toString() + " |");
 			for(int j = 0; j < i; j++) {
-				log.escrever((tabela_triangular[j][i].get_equivalente()) ? "EQV|" : " X |");
+				log.escrever((tabela_triangular[j][i] == 0) ? "   |" : (tabela_triangular[j][i] == 1) ? "EQV|" : " X |");
 			}
 			log.escrever("\n");
 		}

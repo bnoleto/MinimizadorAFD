@@ -47,6 +47,28 @@ public class AFD{
 				}
 			}
 		}
+		if(num == 2) { // AFD #2
+			adicionar_estado(false);
+			adicionar_estado(false);
+			adicionar_estado(true);
+			adicionar_estado(false);
+			adicionar_estado(false);
+			
+			adicionar_alfabeto("a");
+			adicionar_alfabeto("b");
+			
+			set_estado_inicial(estados.get(0));
+			
+			adicionar_transicao(estados.get(0), estados.get(3), alfabeto.get(0));
+			adicionar_transicao(estados.get(0), estados.get(1), alfabeto.get(1));
+			adicionar_transicao(estados.get(1), estados.get(4), alfabeto.get(0));
+			adicionar_transicao(estados.get(2), estados.get(3), alfabeto.get(1));
+			adicionar_transicao(estados.get(3), estados.get(2), alfabeto.get(0));
+			adicionar_transicao(estados.get(3), estados.get(3), alfabeto.get(1));
+			adicionar_transicao(estados.get(4), estados.get(2), alfabeto.get(0));
+			adicionar_transicao(estados.get(4), estados.get(3), alfabeto.get(1));
+		
+		}
 	}
 	
 	public void adicionar_alfabeto(String simbolo) {
@@ -80,7 +102,7 @@ public class AFD{
 			log.escrever("\n");
 		}
 	}
-	
+		
 	public void adicionar_estado(String nome, boolean eh_final) {
 		Estado novo_estado = new Estado(nome,eh_final); 
 		estados.add(novo_estado);
@@ -113,15 +135,20 @@ public class AFD{
 		Estado estado_atual = estado_inicial;
 		int posicao_atual = 0;
 		while(posicao_atual < palavra.length()) {
-			char simbolo_atual = palavra.charAt(posicao_atual);
-			estado_atual = estado_atual.get_destino(String.valueOf(simbolo_atual));
+			try {
+				char simbolo_atual = palavra.charAt(posicao_atual);
+				estado_atual = estado_atual.get_destino(String.valueOf(simbolo_atual));
+			} catch(NullPointerException e) {
+				log.escrever_linha("erro", "Palavra '" + palavra +"' inválida!"+"(parou no estado "+estado_atual+")");
+				return false;
+			}
 			posicao_atual++;
 		}
 		if(estado_atual.eh_final()) {
-			log.escrever_linha("info", "Palavra '" + palavra +"' aceita!");
+			log.escrever_linha("info", "Palavra '" + palavra +"' aceita!" + "(parou no estado "+estado_atual+")");
 			return true;
 		}
-		log.escrever_linha("info", "Palavra '" + palavra +"' não faz parte da linguagem.");
+		log.escrever_linha("info", "Palavra '" + palavra +"' não faz parte da linguagem."+"(parou no estado "+estado_atual+")");
 		return false;
 	}
 	

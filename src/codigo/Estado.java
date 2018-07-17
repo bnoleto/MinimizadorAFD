@@ -8,6 +8,7 @@ public class Estado {
 	private String nome;
 	private boolean estado_final;
 	private List<Transicao> transicoes = new ArrayList<Transicao>();
+	private List<Estado> equivalentes = new ArrayList<Estado>();
 	
 	Estado(String nome, boolean eh_final){
 		this.nome = nome;
@@ -21,6 +22,15 @@ public class Estado {
 	@Override
 	public String toString() {
 		return this.nome;
+	}
+	
+	public void add_equivalente(Estado e1) {
+		equivalentes.add(e1);
+		System.out.print("\n" + e1 +" agora é equivalente a "+ this);
+	}
+	
+	public List<Estado> get_equivalentes() {
+		return equivalentes;
 	}
 	
 	public boolean eh_final() {
