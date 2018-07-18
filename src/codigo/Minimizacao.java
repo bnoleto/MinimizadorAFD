@@ -32,25 +32,26 @@ class Par{
 
 public class Minimizacao {
 	
-	private AFD afd_origem, afd_destino;
+	private AFD afd;
 	private int tabela_triangular[][];
 	List<Par> a_verificar = new ArrayList<Par>();
 	int nao_modif = 0;
 	
 	Log log;
 	
-	public Minimizacao(AFD afd) {
+	public Minimizacao(AFD afd_origem) {
 		
-		this.afd_origem = afd;
-		this.afd_destino = afd_origem;
+		this.afd = afd_origem;
 		
 		this.log = afd.get_objeto_log();
+	}
+	
+	public void minimizar() {
 		log.escrever_linha("info", "MINIMIZAÇÃO INICIADA!");
 		if(!verificar_pre_requisitos()) {
 			return;
 		}
 		criar_tabela_triangular();
-		
 	}
 	
 	private boolean analise_trivial(Par par) {
@@ -72,7 +73,7 @@ public class Minimizacao {
 	private void analise_equivalencia(Par par) {		
 		
 		
-		if(tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] != 0) {
+		if(tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] != 0) {
 			a_verificar.remove(par);
 			return;
 		}
@@ -84,19 +85,19 @@ public class Minimizacao {
 		
 		int cont_equiv = 0;
 		
-		for(int i = 0; i<afd_origem.get_alfabeto().size(); i++) {
+		for(int i = 0; i<afd.get_alfabeto().size(); i++) {
 
-			Estado e0 = par.get_par().get(0).get_destino(afd_origem.get_alfabeto().get(i));
-			Estado e1 = par.get_par().get(1).get_destino(afd_origem.get_alfabeto().get(i));
+			Estado e0 = par.get_par().get(0).get_destino(afd.get_alfabeto().get(i));
+			Estado e1 = par.get_par().get(1).get_destino(afd.get_alfabeto().get(i));
 					
 			
 			
-			int j0 = afd_origem.get_estados().indexOf(e0);
-			int j1 = afd_origem.get_estados().indexOf(e1);
+			int j0 = afd.get_estados().indexOf(e0);
+			int j1 = afd.get_estados().indexOf(e1);
 			int aux;
 			
-			sb.append("\n" + par.get_par().get(0).toString() + " + " + afd_origem.get_alfabeto().get(i) + " = " + e0 + " // "
-					+ par.get_par().get(1).toString() + " + " + afd_origem.get_alfabeto().get(i) + " = " + e1 + " --> ("+ ( j0>j1 ? (e1 + ", "+ e0+")") : (e0 + ", "+ e1+")")));
+			sb.append("\n" + par.get_par().get(0).toString() + " + " + afd.get_alfabeto().get(i) + " = " + e0 + " // "
+					+ par.get_par().get(1).toString() + " + " + afd.get_alfabeto().get(i) + " = " + e1 + " --> ("+ ( j0>j1 ? (e1 + ", "+ e0+")") : (e0 + ", "+ e1+")")));
 			
 			if (j0>j1) {
 				aux = j0;
@@ -108,7 +109,7 @@ public class Minimizacao {
 			if (tabela_triangular[j0][j1] == -1) {
 				achou_resultado = true;
 				sb.append(" NÃO EQV");
-				tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] = -1;
+				tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] = -1;
 				a_verificar.remove(par);
 				nao_modif = 0;
 			}
@@ -117,12 +118,12 @@ public class Minimizacao {
 				sb.append(" EQV");
 			}
 		}
-		if(cont_equiv == afd_origem.get_alfabeto().size()) {
+		if(cont_equiv == afd.get_alfabeto().size()) {
 			achou_resultado = true;
 			a_verificar.remove(par);
-			tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] = 1;
-			afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(0))).add_equivalente(afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(1))));
-			afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(1))).add_equivalente(afd_origem.get_estados().get(afd_origem.get_estados().indexOf(par.get_par().get(0))));			
+			tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] = 1;
+			afd.get_estados().get(afd.get_estados().indexOf(par.get_par().get(0))).add_equivalente(afd.get_estados().get(afd.get_estados().indexOf(par.get_par().get(1))));
+			afd.get_estados().get(afd.get_estados().indexOf(par.get_par().get(1))).add_equivalente(afd.get_estados().get(afd.get_estados().indexOf(par.get_par().get(0))));			
 			nao_modif = 0;
 		}
 		if(!achou_resultado) {
@@ -130,8 +131,8 @@ public class Minimizacao {
 		}
 		
 		titulo.append("\n== PAR {" + par.get_par().get(0).toString() + ","+ par.get_par().get(1).toString()+ "} --> " + (
-			tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] == 0 ? "?" :(
-				tabela_triangular[afd_origem.get_estados().indexOf(par.get_par().get(0))][afd_origem.get_estados().indexOf(par.get_par().get(1))] == 1) ? "EQV" : "NÃO EQV"));
+			tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] == 0 ? "?" :(
+				tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] == 1) ? "EQV" : "NÃO EQV"));
 		log.escrever(titulo.toString() + sb.toString());
 		nao_modif++;
 	}
@@ -140,7 +141,7 @@ public class Minimizacao {
 		
 		/* será criada uma nova matriz Tabela e a tabela_triangular passará a apontar para ela, para garantir que a matriz tenha o mesmo tamanho da
 		   quantidade dos estados do AFD*/
-		int numEstados = afd_origem.get_estados().size();
+		int numEstados = afd.get_estados().size();
 		int tabela[][] = new int[numEstados+1][numEstados+1];
 		tabela_triangular = tabela;
 		
@@ -148,7 +149,7 @@ public class Minimizacao {
 		log.escrever_linha("info", "1ª passagem - estados trivialmente equivalentes:");
 		for(int i = 0; i < numEstados; i++ ) {
 			for(int j = i; j < numEstados; j++) {
-				Par par_atual = new Par(afd_origem.get_estados().get(i),afd_origem.get_estados().get(j));
+				Par par_atual = new Par(afd.get_estados().get(i),afd.get_estados().get(j));
 				
 				if (i != j) {
 					tabela[i][j] = analise_trivial(par_atual) ? 0 : -1;
@@ -183,8 +184,8 @@ public class Minimizacao {
 				for(int j = i; j < numEstados; j++) {
 					if(tabela[i][j] == 0) {
 						tabela[i][j] = 1;
-						afd_origem.get_estados().get(i).add_equivalente(afd_origem.get_estados().get(j));
-						afd_origem.get_estados().get(j).add_equivalente(afd_origem.get_estados().get(i));
+						afd.get_estados().get(i).add_equivalente(afd.get_estados().get(j));
+						afd.get_estados().get(j).add_equivalente(afd.get_estados().get(i));
 					}
 					
 				}
@@ -195,8 +196,8 @@ public class Minimizacao {
 		
 		// 3ª passagem: junção dos estados equivalentes
 		List<Estado> estados = new ArrayList<Estado>();
-		for(int i = 0; i< afd_origem.get_estados().size(); i++) {
-			estados.add(afd_origem.get_estados().get(i));
+		for(int i = 0; i< afd.get_estados().size(); i++) {
+			estados.add(afd.get_estados().get(i));
 		}
 		while(!estados.isEmpty()) {
 			
@@ -216,27 +217,27 @@ public class Minimizacao {
 	private void juntar_estados(Estado e1, Estado e2) {
 		//Estado e1 = par_atual.get_par().get(0), e2 = par_atual.get_par().get(1);
 		
-		for(Transicao transicao_atual : afd_destino.get_transicoes()) {
+		for(Transicao transicao_atual : afd.get_transicoes()) {
 			transicao_atual.substituirEstado(e1, e2);
 		}
 		
 		e2.renomear(e2.toString()+e1.toString());
 		log.escrever_linha("info", "Todas as transições de/para '" + e1 + "' serão apontadas para '" + e2 + "'!");
-		afd_destino.remover_estado(e1);
+		afd.remover_estado(e1);
 	}
 
 	private void mostrar_tabela2() {
 		log.escrever("\n\n");
-		for(int i = 1; i < afd_origem.get_estados().size(); i++ ) {
-			log.escrever(afd_origem.get_estados().get(i).toString() + " |");
+		for(int i = 1; i < afd.get_estados().size(); i++ ) {
+			log.escrever(afd.get_estados().get(i).toString() + " |");
 			for(int j = 0; j < i; j++) {
 				log.escrever((tabela_triangular[j][i] == 0) ? "   |" : (tabela_triangular[j][i] == 1) ? "EQV|" : " X |");
 			}
 			log.escrever("\n");
 		}
 		log.escrever("   |");
-		for(int i = 0; i < afd_origem.get_estados().size()-1; i++) {		
-			log.escrever(afd_origem.get_estados().get(i).toString() + " |");
+		for(int i = 0; i < afd.get_estados().size()-1; i++) {		
+			log.escrever(afd.get_estados().get(i).toString() + " |");
 		}
 		log.escrever("\n\n");
 	}
@@ -255,8 +256,8 @@ public class Minimizacao {
 	private boolean verificar_pre_requisitos() {
 		
 	// verificará se é AFD
-		for(int i = 0; i<afd_origem.get_estados().size(); i++) {	// percorrerá todos os estados
-			Estado estadoAtual = afd_origem.get_estados().get(i);
+		for(int i = 0; i<afd.get_estados().size(); i++) {	// percorrerá todos os estados
+			Estado estadoAtual = afd.get_estados().get(i);
 			int qtd_transicoes = estadoAtual.getTransicoes().size();	// pegará o número total de transições de cada estado
 			for(int j = 0; j< qtd_transicoes; j++) {
 				for(int k = j+1; k<qtd_transicoes; k++) { // laço duplo comparará todas as transições de cada estado
@@ -281,12 +282,12 @@ public class Minimizacao {
 		   do AFD, então existem estados inacessíveis; 
 		 * A LISTA LOCAL nunca será maior que a LISTA DE ESTADOS CRIADOS do AFD.*/
 		
-		buscar_estado_posterior(afd_origem.get_estado_inicial(), lista);
+		buscar_estado_posterior(afd.get_estado_inicial(), lista);
 		
 		List<Estado> inacessiveis = new ArrayList<Estado>();
-		for(int i = 0; i< afd_origem.get_estados().size(); i++) {
-			if(!lista.contains(afd_origem.get_estados().get(i))){
-				inacessiveis.add(afd_origem.get_estados().get(i));
+		for(int i = 0; i< afd.get_estados().size(); i++) {
+			if(!lista.contains(afd.get_estados().get(i))){
+				inacessiveis.add(afd.get_estados().get(i));
 			}
 		}
 		if(inacessiveis.size() > 0) {
@@ -298,30 +299,30 @@ public class Minimizacao {
 		
 	// verificará se a função de transição é total
 		int qtd_transicoes = 0;
-		for(int i = 0; i<afd_origem.get_estados().size(); i++) {
-			for(int j = 0; j< afd_origem.get_estados().get(i).getTransicoes().size(); j++) {
+		for(int i = 0; i<afd.get_estados().size(); i++) {
+			for(int j = 0; j< afd.get_estados().get(i).getTransicoes().size(); j++) {
 				qtd_transicoes++;
 			}
 		}
-		if(qtd_transicoes != afd_origem.get_estados().size()*afd_origem.get_alfabeto().size()) {
+		if(qtd_transicoes != afd.get_estados().size()*afd.get_alfabeto().size()) {
 			
 			// algoritmo que criará o estado de erro (sE) caso a função de transição não seja TOTAL
 			
 			log.escrever_linha("AVISO", "O Autômato não possui a função de transição total! "
 					+ "Será criado um estado de erro (sE). Transições serão criadas e direcionadas à ele caso não existam transições para entradas em estados específicos.");
-			afd_origem.adicionar_estado("sE", false);
-			Estado sE = afd_origem.get_estados().get(afd_origem.get_estados().size()-1);
+			afd.adicionar_estado("sE", false);
+			Estado sE = afd.get_estados().get(afd.get_estados().size()-1);
 			
-			for(int i = 0; i< afd_origem.get_estados().size(); i++) {
-				Estado estado_atual = afd_origem.get_estados().get(i);
+			for(int i = 0; i< afd.get_estados().size(); i++) {
+				Estado estado_atual = afd.get_estados().get(i);
 				List<String> alfabeto_estado = new ArrayList<String>();	// armazenará todos os símbolos com transição no estado
 				for(int j = 0; j<estado_atual.getTransicoes().size(); j++) {
 					alfabeto_estado.add(estado_atual.getTransicoes().get(j).getSimbolo());
 				}
-				for(int j = 0; j<afd_origem.get_alfabeto().size(); j++) {
+				for(int j = 0; j<afd.get_alfabeto().size(); j++) {
 					// se a lista de símbolos de 1 estado específico não conter um símbolo específico do alfabeto geral do AFD
-					if(!alfabeto_estado.contains(afd_origem.get_alfabeto().get(j))) {	
-						afd_origem.adicionar_transicao(estado_atual, sE, afd_origem.get_alfabeto().get(j));
+					if(!alfabeto_estado.contains(afd.get_alfabeto().get(j))) {	
+						afd.adicionar_transicao(estado_atual, sE, afd.get_alfabeto().get(j));
 					}
 				}
 
@@ -333,8 +334,5 @@ public class Minimizacao {
 		return true;
 	}
 	
-	public AFD getAFD_destino(){
-		return afd_destino;
-	}
 
 }

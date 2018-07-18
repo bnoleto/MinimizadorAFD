@@ -163,9 +163,9 @@ public class AFD{
 		
 	}
 
-	public AFD minimizar() {
+	public void minimizar() {
 		Minimizacao m1 = new Minimizacao(this);
-		return m1.getAFD_destino();
+		m1.minimizar();
 	}
 	
 	public boolean testar_palavra(String palavra) {

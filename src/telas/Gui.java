@@ -299,12 +299,12 @@ public class Gui {
 		btn_adicionar_transicao.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				afd_origem.adicionar_transicao(combo_transicao_de.getItemAt(combo_transicao_de.getSelectedIndex()),
-						combo_transicao_para.getItemAt(combo_transicao_para.getSelectedIndex()),
-						combo_transicao_simbolo.getItemAt(combo_transicao_simbolo.getSelectedIndex()));
-				afd_minimizado.adicionar_transicao(combo_transicao_de.getItemAt(combo_transicao_de.getSelectedIndex()),
-						combo_transicao_para.getItemAt(combo_transicao_para.getSelectedIndex()),
-						combo_transicao_simbolo.getItemAt(combo_transicao_simbolo.getSelectedIndex()));
+				afd_origem.adicionar_transicao(afd_origem.get_estados().get(combo_transicao_de.getSelectedIndex()),
+						afd_origem.get_estados().get(combo_transicao_para.getSelectedIndex()),
+						afd_origem.get_alfabeto().get(combo_transicao_simbolo.getSelectedIndex()));
+				afd_minimizado.adicionar_transicao(afd_minimizado.get_estados().get(combo_transicao_de.getSelectedIndex()),
+						afd_minimizado.get_estados().get(combo_transicao_para.getSelectedIndex()),
+						afd_minimizado.get_alfabeto().get(combo_transicao_simbolo.getSelectedIndex()));
 				
 				personalizado_finalizar.toggle_enabled(true);
 			}
@@ -339,8 +339,8 @@ public class Gui {
 		btn_carregar_afd.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				personalizado_geral.toggle_enabled(false);
-				afd_origem.set_estado_inicial(combo_estado_inicial.getItemAt(combo_estado_inicial.getSelectedIndex()));
-				afd_minimizado.set_estado_inicial(combo_estado_inicial.getItemAt(combo_estado_inicial.getSelectedIndex()));
+				afd_origem.set_estado_inicial(afd_origem.get_estados().get(combo_estado_inicial.getSelectedIndex()));
+				afd_minimizado.set_estado_inicial(afd_minimizado.get_estados().get(combo_estado_inicial.getSelectedIndex()));
 				teste_afd.toggle_enabled(true);
 				JLabel label = (JLabel) teste_afd.get_objetos().get(3);
 				label.setText("AFD pronto!");
