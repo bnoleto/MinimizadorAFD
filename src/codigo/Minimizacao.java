@@ -5,6 +5,7 @@ import java.util.List;
 
 class Par{
 	
+	// classe do par de estados
 	private List<Estado> estados = new ArrayList<Estado>();
 	private boolean eh_equivalente;
 	
@@ -17,11 +18,8 @@ class Par{
 	public void set_equivalente(boolean valor) {
 		this.eh_equivalente = valor;
 	}
-	public boolean get_equivalente() {
-		return this.eh_equivalente;
-	}
 	
-	public boolean verif_equivalente() {
+	public boolean get_equivalente() {
 		return this.eh_equivalente;
 	}
 	
@@ -47,6 +45,7 @@ public class Minimizacao {
 	}
 	
 	public void minimizar() {
+		// função principal de minimização
 		log.escrever_linha("info", "MINIMIZAÇÃO INICIADA!");
 		if(!verificar_pre_requisitos()) {
 			return;
@@ -55,12 +54,14 @@ public class Minimizacao {
 	}
 	
 	private boolean analise_trivial(Par par) {
+		// retornará true apenas se ambos os estados forem finais ou não-finais
 		Estado e1 = par.get_par().get(0), e2 = par.get_par().get(1);
 
 		return !(e1.eh_final()^e2.eh_final());
 	}
 
 	private void enviar_para_ultimo(List<Par> lista) {
+		// pegará o primeiro item da lista e enviará para o final da mesma
 		if(lista.size()>1) {
 			Par aux = lista.get(0);
 			for(int i = 1; i< lista.size(); i++) {
@@ -72,8 +73,9 @@ public class Minimizacao {
 	
 	private void analise_equivalencia(Par par) {		
 		
-		
+
 		if(tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] != 0) {
+			// o programa lerá a matriz de equivalência parcialmente preenchida, e eliminará da verificação os pares que já foram verificados
 			a_verificar.remove(par);
 			return;
 		}
@@ -85,6 +87,7 @@ public class Minimizacao {
 		
 		int cont_equiv = 0;
 		
+		// fará a análise para cada símbolo do alfabeto
 		for(int i = 0; i<afd.get_alfabeto().size(); i++) {
 
 			Estado e0 = par.get_par().get(0).get_destino(afd.get_alfabeto().get(i));
@@ -99,6 +102,7 @@ public class Minimizacao {
 			sb.append("\n" + par.get_par().get(0).toString() + " + " + afd.get_alfabeto().get(i) + " = " + e0 + " // "
 					+ par.get_par().get(1).toString() + " + " + afd.get_alfabeto().get(i) + " = " + e1 + " --> ("+ ( j0>j1 ? (e1 + ", "+ e0+")") : (e0 + ", "+ e1+")")));
 			
+			// condição para garantir que se não se busque 2x na tabela um mesmo par. ex. (s0,s2) e (s2,s0)
 			if (j0>j1) {
 				aux = j0;
 				j0 = j1;
@@ -107,6 +111,7 @@ public class Minimizacao {
 			}
 			
 			if (tabela_triangular[j0][j1] == -1) {
+				// na primeira não-equivalência, já encerrará a verificação do par atual ao marcar -1 na matriz de equivalências
 				achou_resultado = true;
 				sb.append(" NÃO EQV");
 				tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] = -1;
@@ -114,11 +119,14 @@ public class Minimizacao {
 				nao_modif = 0;
 			}
 			if(tabela_triangular[j0][j1] == 1) {
+				// para cada equivalência encontrada, incrementará o contador de equivalências dentro do par
 				cont_equiv++;
 				sb.append(" EQV");
 			}
 		}
 		if(cont_equiv == afd.get_alfabeto().size()) {
+			// caso o número de equivalências encontradas seja igual ao tamanho do alfabeto, podemos dizer que em todas as entradas
+			// o par será equivalente, assim podendo assumir que o par é equivalente
 			achou_resultado = true;
 			a_verificar.remove(par);
 			tabela_triangular[afd.get_estados().indexOf(par.get_par().get(0))][afd.get_estados().indexOf(par.get_par().get(1))] = 1;
@@ -127,6 +135,8 @@ public class Minimizacao {
 			nao_modif = 0;
 		}
 		if(!achou_resultado) {
+			// caso o par dentro da matriz de equivalências permanecer zerado (não se sabe se é equivalente ou não),
+			// enviará para o fim da lista, para verificar posteriormente.
 			enviar_para_ultimo(a_verificar);
 		}
 		
@@ -170,16 +180,13 @@ public class Minimizacao {
 		// 2ª passagem: análise dos pares não marcados
 		log.escrever_linha("info", "2ª passagem - análise dos pares não marcados:");
 		while (!a_verificar.isEmpty() && nao_modif < a_verificar.size()*2) {
-			/*for(int i =0; i<a_verificar.size(); i++) {
-				log.escrever(a_verificar.get(i).get_par().toString());
-			}*/
+			// verificará a equivalência de todos os pares possíveis, enquanto a lista de pares a verificar não estiver vazia
 			Par par_atual = a_verificar.get(0);
 			analise_equivalencia(par_atual);
-			//mostrar_tabela2();
-			//log.escrever_linha(String.valueOf(a_verificar.size()));
 			
 		}
 		if(nao_modif == a_verificar.size()*2) {
+			// função para registrar dentro de cada Estado, quais outros são equivalentes a ele, para poder juntá-los posteriormente
 			for(int i = 0; i < numEstados; i++ ) {
 				for(int j = i; j < numEstados; j++) {
 					if(tabela[i][j] == 0) {
@@ -215,7 +222,7 @@ public class Minimizacao {
 	}
 	
 	private void juntar_estados(Estado e1, Estado e2) {
-		//Estado e1 = par_atual.get_par().get(0), e2 = par_atual.get_par().get(1);
+		// função que juntará os estados apenas, a lógica da equivalência está fora desta função
 		
 		for(Transicao transicao_atual : afd.get_transicoes()) {
 			transicao_atual.substituirEstado(e1, e2);
@@ -274,7 +281,7 @@ public class Minimizacao {
 	// verificará se possui estados inacessíveis
 		List<Estado> lista = new ArrayList<Estado>();
 		
-		/* A função abaixo fará uma busca recursiva a partir do estado inicial, passando para o próximo estado por meio do ESTADO DESTINO
+		/* A função abaixo fará uma busca recursiva a partir do estado inicial, passando para o próximo estado por meio do ESTADO DESTINO ->
 		   definido em cada transição a partir do ESTADO ORIGEM, adicionando à lista cada Estado diferente que for alcançado;
 		 * No encerramento da função, teremos uma LISTA LOCAL de estados acessados, e a quantidade de itens desta lista será comparada ->
 		   com a quantidade de Estados criados no AFD; 

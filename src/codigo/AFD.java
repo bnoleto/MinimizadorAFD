@@ -28,6 +28,7 @@ public class AFD{
 	}
 	
 	private void gerarAFD(int num) {
+		// função que gerará um AFD de exemplo ao receber a numeração dele
 		if(num == 1) { // AFD #1
 			for(int i = 0; i<9; i++) {
 				boolean estado_final = (i == 2 || i == 5 || i == 8);
@@ -91,6 +92,7 @@ public class AFD{
 	}
 	
 	public void adicionar_alfabeto(String simbolo) {
+		// adicionará um novo símbolo ao alfabeto
 		alfabeto.add(simbolo);
 		log.escrever_linha("INFO", "Símbolo '" + simbolo + "' adicionado!");
 	}
@@ -118,6 +120,7 @@ public class AFD{
 	}
 	
 	public void adicionar_estado(boolean eh_final) {
+		// adicionará um novo estado com nomenclatura padrão, recebendo apenas se é estado final ou não
 		Estado novo_estado = new Estado("s"+String.valueOf(estados.size()),eh_final); 
 		estados.add(novo_estado);
 		log.escrever("INFO", "Estado '"+novo_estado.toString() + "' adicionado!");
@@ -131,6 +134,7 @@ public class AFD{
 	}
 		
 	public void adicionar_estado(String nome, boolean eh_final) {
+		// adicionará um novo estado determinando se é final, e seu nome também.
 		Estado novo_estado = new Estado(nome,eh_final); 
 		estados.add(novo_estado);
 		log.escrever("INFO: Estado '"+novo_estado.toString() + "' adicionado!");
@@ -144,6 +148,7 @@ public class AFD{
 	}
 	
 	public void set_log_component(JTextArea component) {
+		// função para associar o log do AFD ao objeto da textbox da GUI
 		this.log = new Log(component);
 	}
 	
@@ -164,11 +169,13 @@ public class AFD{
 	}
 
 	public void minimizar() {
+		// instanciamento da minimização a ser realizada
 		Minimizacao m1 = new Minimizacao(this);
 		m1.minimizar();
 	}
 	
 	public boolean testar_palavra(String palavra) {
+		// função para verificar se a palavra recebida pertence à linguagem
 		Estado estado_atual = estado_inicial;
 		int posicao_atual = 0;
 		while(posicao_atual < palavra.length()) {
